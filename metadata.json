@@ -1,0 +1,8 @@
+{
+  "name": "Carrier Base Email Plugin",
+  "version": "0.1",
+  "module": "plugins.email_base",
+  "extract": false,
+  "depends_on": ["integrations", "tasks"],
+  "init_after": []
+}
