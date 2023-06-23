@@ -1,7 +1,7 @@
 from pylon.core.tools import log, web
 
 from ..models.integration_pd import TaskSettingsModel
-from tools import TaskManager, data_tools, constants
+from tools import TaskManager, data_tools, constants, rpc_tools
 
 
 class Event:
@@ -15,14 +15,26 @@ class Event:
             **integration_data['settings'],
         }
         env_vars = TaskSettingsModel.parse_obj(obj)
-        log.info('env_vars %s', env_vars)
+        rpc = rpc_tools.RpcMixin().rpc
+        if integration_data.get("project_id"):
+            default_integration = rpc.call.integrations_get_defaults(
+                project_id=integration_data.get("project_id"), name='s3_integration'
+            )
+            integration_id = default_integration.integration_id if default_integration else 1
+        else:
+            default_integration = rpc.call.integrations_get_admin_defaults(
+                name='s3_integration'
+            )
+            integration_id = default_integration.id if default_integration else 1    
+        is_local = bool(default_integration.project_id) if default_integration else False 
 
         return {
             'funcname': f'email_base_integration_{integration_data["id"]}',
             'invoke_func': 'lambda_function.lambda_handler',
             'runtime': 'Python 3.7',
             'env_vars': env_vars.json(),
-            'region': 'default'
+            'region': 'default',
+            's3_settings': {'integration_id': integration_id, 'is_local': is_local}
         }
 
     @web.event(f"{integration_name}_created_or_updated")
