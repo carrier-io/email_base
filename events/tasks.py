@@ -31,7 +31,7 @@ class Event:
         return {
             'funcname': f'email_base_integration_{integration_data["id"]}',
             'invoke_func': 'lambda_function.lambda_handler',
-            'runtime': 'Python 3.7',
+            'runtime': 'Python 3.8',
             'env_vars': env_vars.json(),
             'region': 'default',
             's3_settings': {'integration_id': integration_id, 'is_local': is_local}
